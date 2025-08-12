@@ -1,5 +1,8 @@
 <?php
 // jika data setting sudah ada maka update data tersebut selain itu kalo blm ada maka insert data  
+$querySetting = mysqli_query($koneksi, "SELECT * FROM settings LIMIT 1");
+$row = mysqli_fetch_assoc($querySetting);
+
 if (isset($_POST['simpan'])) {
   $email = $_POST['email'];
   $phone = $_POST['phone'];
@@ -9,24 +12,39 @@ if (isset($_POST['simpan'])) {
   $twitter = $_POST['twitter'];
   $linkedin = $_POST['linkedin'];
 
-  $querySetting = mysqli_query($koneksi, "SELECT * FROM settings LIMIT 1");
-  if (mysqli_num_rows($querySetting) > 0) {
+  // jika gambar terupload
+  if(!empty($_FILES['logo']['name'])){
+    $logo = $_FILES['logo']['name'];
+    $path = "upload/";
+    if(!is_dir($path)) mkdir($path);
+    
+    $logo_name = time() . "_" . basename($logo);
+    $target_files = $path . $logo_name;
+    if(move_uploaded_file($_FILES['logo']['tmp_name'], $target_files)){
+      // jika gambarnya ada maka gambar sebelumnya akan di ganti oleh gambar baru
+      if(!empty($row['logo'])) {
+        unlink($path . $row['logo']);
+      }
+  }
+  }
+  
+  if ($row) {
     // update
-    $row = mysqli_fetch_assoc($querySetting);
     $id_setting = $row['id'];
 
-    $update = mysqli_query($koneksi, "UPDATE settings SET email='$email', phone='$phone', address='$address', ig='$ig', fb='$fb', twitter='$twitter', linkedin='$linkedin' WHERE id='$id_setting'");
+    $update = mysqli_query($koneksi, "UPDATE settings SET email='$email', phone='$phone', logo='$logo_name', address='$address', ig='$ig', fb='$fb', twitter='$twitter', linkedin='$linkedin' WHERE id='$id_setting'");
+    if ($update) {
+      header("location:?page=setting&ubah=berhasil");
+    }
   } else {
     // insert
-    $insert = mysqli_query($koneksi, "INSERT INTO settings (email, phone, address,ig, fb, twitter, linkedin) VALUES ('$email', '$phone', '$address', '$ig', '$fb', '$twitter', '$linkedin')");
+    $insert = mysqli_query($koneksi, "INSERT INTO settings (email, phone, logo, address, ig, fb, twitter, linkedin) VALUES ('$email', '$phone', '$logo_name', '$address', '$ig', '$fb', '$twitter', '$linkedin')");
     if ($insert) {
       header("location:?page=setting&tambah=berhasil");
     }
   }
 }
 
-$querySetting = mysqli_query($koneksi, "SELECT * FROM settings LIMIT 1");
-$row = mysqli_fetch_assoc($querySetting);
 ?>
 <div class="pagetitle">
   <h1>Pengaturan</h1>
@@ -42,7 +60,7 @@ $row = mysqli_fetch_assoc($querySetting);
           <form action="" method="post" enctype="multipart/form-data">
             <div class="mb-3 row">
               <div class="col-sm-2">
-                <label for="" class="form-label fw-bold">email</label>
+                <label for="" class="form-label fw-bold">Email</label>
               </div>
               <div class="col-sm-6">
                 <input type="email" name="email" id="" class="form-control"
@@ -54,8 +72,8 @@ $row = mysqli_fetch_assoc($querySetting);
                 <label for="" class="form-label fw-bold">No Telp</label>
               </div>
               <div class="col-sm-6">
-                <input type="number" name="number" id="" class="form-control"
-                  value="<?php echo isset($row['number']) ? $row['number'] : '' ?>">
+                <input type="number" name="phone" id="" class="form-control"
+                  value="<?php echo isset($row['phone']) ? $row['phone'] : '' ?>">
               </div>
             </div>
 
@@ -64,25 +82,25 @@ $row = mysqli_fetch_assoc($querySetting);
                 <label for="" class="form-label fw-bold">Alamat</label>
               </div>
               <div class="col-sm-6">
-                <textarea type="address" name="address" id="" class="form-control"
-                  value="<?php echo isset($row['address']) ? $row['address'] : '' ?>">alamat</textarea>
+                <textarea type="address" name="address" id="" class="form-control" placeholder="Masukkan alamat anda"
+                  value="<?php echo isset($row['address']) ? $row['address'] : '' ?>"></textarea>
               </div>
             </div>
             <div class="mb-3 row">
               <div class="col-sm-2">
-                <label for="" class="form-label fw-bold">fb</label>
+                <label for="" class="form-label fw-bold">Facebook</label>
               </div>
               <div class="col-sm-6">
-                <input type="fb" name="fb" id="" class="form-control"
+                <input type="url" name="fb" id="" class="form-control"
                   value="<?php echo isset($row['fb']) ? $row['fb'] : '' ?>">
               </div>
             </div>
             <div class="mb-3 row">
               <div class="col-sm-2">
-                <label for="" class="form-label fw-bold">Ig</label>
+                <label for="" class="form-label fw-bold">Instagram</label>
               </div>
               <div class="col-sm-6">
-                <input type="ig" name="ig" id="" class="form-control"
+                <input type="url" name="ig" id="" class="form-control"
                   value="<?php echo isset($row['ig']) ? $row['ig'] : '' ?>">
               </div>
             </div>
@@ -91,7 +109,7 @@ $row = mysqli_fetch_assoc($querySetting);
                 <label for="" class="form-label fw-bold">Linkedin</label>
               </div>
               <div class="col-sm-6">
-                <input type="linkedin" name="linkedin" id="" class="form-control"
+                <input type="url" name="linkedin" id="" class="form-control"
                   value="<?php echo isset($row['linkedin']) ? $row['linkedin'] : '' ?>">
               </div>
             </div>
@@ -100,7 +118,7 @@ $row = mysqli_fetch_assoc($querySetting);
                 <label for="" class="form-label fw-bold">Twitter</label>
               </div>
               <div class="col-sm-6">
-                <input type="twitter" name="twitter" id="" class="form-control"
+                <input type="url" name="twitter" id="" class="form-control"
                   value="<?php echo isset($row['twitter']) ? $row['twitter'] : '' ?>">
               </div>
             </div>
@@ -109,12 +127,13 @@ $row = mysqli_fetch_assoc($querySetting);
                 <label for="" class="form-label fw-bold">Logo</label>
               </div>
               <div class="col-sm-6">
-                <input type="logo" name="logo">
+                <input type="file" name="logo">
+                <img class="mt-2" src="upload/<?php echo isset($row['logo']) ? $row['logo'] : '' ?>" alt="" width="100">
               </div>
             </div>
             <div class="mb-3 row">
               <div class="col-sm-12">
-                <button class="btn btn-primary" name="simpan">simpan</button>
+                <button class="btn btn-primary" name="simpan">Simpan</button>
               </div>
             </div>
           </form>
