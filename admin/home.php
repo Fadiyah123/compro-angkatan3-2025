@@ -25,6 +25,12 @@ if(empty($_SESSION['ID_USER'])) {
     https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/ * Updated: Apr 20 2024 with Bootstrap v5.3.3 *
     Author: BootstrapMade.com * License:
     https://bootstrapmade.com/license/========================================================-->
+
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+    integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous">
+  </script>
+  <link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.js"></script>
 </head>
 
 <body>
@@ -57,6 +63,9 @@ if(empty($_SESSION['ID_USER'])) {
       class="bi bi-arrow-up-short"></i></a>
 
   <?php include 'inc/js.php'?>
+  <script>
+  $('#summernote').summernote();
+  </script>
 </body>
 
 </html>

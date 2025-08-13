@@ -48,6 +48,7 @@ if(!empty($_FILES['image']['name'])){
       }
   } else {
     echo "extensi file tidak ditemukan";
+    die;
   }
 }
 
