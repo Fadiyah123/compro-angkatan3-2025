@@ -1,70 +1,74 @@
 <?php
-
-$id = isset($_GET['id']) ? $_GET['edit'] : '';
-
+$id = isset($_GET['edit']) ? $_GET['edit'] : '';
 if (isset($_GET['edit'])) {
-    $id = $_GET['edit'];
-    $query = mysqli_query($koneksi, "SELECT * FROM blogs WHERE id = '$id'");
-    $rowEdit = mysqli_fetch_assoc(result: $query);
-
-    $title = "Edit blog";
+  $id = $_GET['edit'];
+  $query = mysqli_query($koneksi, "SELECT * FROM blogs WHERE id = '$id'");
+  $rowEdit = mysqli_fetch_assoc($query);
+  $title = "Edit Blog";
 } else {
-    $title = "Tambah blog";
+  $title = "Tambah Blog";
 }
 
 if (isset($_GET['delete'])) {
-    $id = $_GET['delete'];
-    $query = mysqli_query($koneksi, "DELETE FROM blogs WHERE id = '$id'");
-
-    header("location:?page=blog&hapus=berhasil");
+  $id = $_GET['delete'];
+  $queryGambar = mysqli_query($koneksi, "SELECT id, image FROM blogs WHERE id='$id'");
+  $rowGambar = mysqli_fetch_assoc($queryGambar);
+  $image_name = $rowGambar['image'];
+  unlink("upload/" . $image_name);
+  $delete = mysqli_query($koneksi, "DELETE FROM blogs WHERE id = '$id'");
+  header("location:?page=blog&hapus=berhasil");
 }
 
 if (isset($_POST['simpan'])) {
-    $id_category = ['id_category'];
-    $title = $_POST['title'];
-    $content = $_POST['content'];
-    $penulis = $_SESSION['name'];
-    $is_active = $_POST['is_active'];
-    $tags = $_POST['tags'];
+  $id_category = ['id_category'];
+  $title = $_POST['title'];
+  $content = $_POST['content'];
+  $penulis = $_SESSION['NAME'];
+  $is_active = $_POST['is_active'];
+  $id_category = $_POST['id_category'];
+  $tags = $_POST['tags'];
 
-    // jika gambar terupload
-    if (!empty($_FILES['image']['name'])) {
-        $image = $_FILES['image']['name'];
-        $tmp_name = $_FILES['image']['tmp_name'];
-        $type = mime_content_type($tmp_name);
 
-        $ext_allowed = ["image/png", "image/jpg", "image/jpeg"];
 
-        if (!in_array($type, $ext_allowed)) {
-            echo "Extensi file tidak diizinkan";
-            exit;
-        }
+  // jika gambar terupload
+  if (!empty($_FILES['image']['name'])) {
+    $image = $_FILES['image']['name'];
+    $tmp_name = $_FILES['image']['tmp_name'];
+    $type = mime_content_type($tmp_name);
 
-        $path = "uploads/";
-        if (!is_dir($path)) mkdir($path);
+    $ext_allowed = ["image/png", "image/jpg", "image/jpeg"];
 
-        $image_name = md5($image) . "." . pathinfo($image, PATHINFO_EXTENSION);
-        $target_files = $path . $image_name;
+    $path = "upload/";
+    if (!is_dir($path)) mkdir($path);
 
-        if (move_uploaded_file($tmp_name, $target_files)) {
-            echo "Upload berhasil";
-        } else {
-            echo "Upload gagal";
-        }
-    }
+    $image_name = md5($image) . "." . pathinfo($image, PATHINFO_EXTENSION);
+    $target_files = $path . $image_name;
 
-    if ($id) {
-        // ini query update
-        $update = mysqli_query($koneksi, query: "UPDATE blogs SET id_category = '$id_category', title = '$title', content = '$content', penulis = '$penulis', tags = '$tags', image = '$image_name', is_active = '$is_active' WHERE id = '$id'");
-        if ($update) {
-            header("location:?page=blog&ubah=berhasil");
-        }
+    if (move_uploaded_file($_FILES['image']['tmp_name'], $target_files)) {
+      if (!empty($row['image'])) {
+        unlink($path . $row['image']);
+      }
     } else {
-        $insert = mysqli_query($koneksi, "INSERT INTO blogs (id_category, title, content, penulis, tags image, is_active) VALUES ('$id_category', '$title', '$content', '$penulis', '$tags', '$image_name', '$is_active')");
-        if ($insert) {
-            header("location:?page=blog&tambah=berhasil");
-        }
+      echo "extensi file tidak ditemukan";
+      die;
     }
+    $update = "UPDATE blogs SET title = '$title', tags = '$tags', content = '$content', is_active = '$is_active', image_name='$image_name', penulis = '$penulis', id_category = '$id_category' WHERE id = '$id'";
+  } else {
+    $update = "UPDATE blogs SET title = '$title', tags = '$tags', content = '$content', is_active = '$is_active', penulis = '$penulis', id_category = '$id_category' WHERE id = '$id'";
+  }
+
+  if ($id) {
+    // ini query update
+    $update = mysqli_query($koneksi, $update);
+    if ($update) {
+      header("location:?page=blog&ubah=berhasil");
+    }
+  } else {
+    $insert = mysqli_query($koneksi, "INSERT INTO blogs (id_category, title, tags, content, image, is_active, penulis) VALUES ('$id_category', '$title', '$tags', '$content','$image_name', '$is_active', '$penulis')");
+    if ($insert) {
+      header("location:?page=blog&tambah=berhasil");
+    }
+  }
 }
 
 $queryCategories = mysqli_query($koneksi, "SELECT * FROM categories ORDER BY id DESC");
@@ -89,8 +93,8 @@ $rowCategories = mysqli_fetch_all($queryCategories, MYSQLI_ASSOC);
             <div class="mb-3">
               <label for="category" class="form-label">Category</label>
               <select class="form-select" name="id_category" id="id_category">
-                <?php foreach ($rowCategories as $key => $rowCategorie): ?>
-                <option value="<?php echo $rowCategorie['id'] ?>"><?php echo $rowCategorie['name'] ?></option>
+                <?php foreach ($rowCategories as $key => $rowCategory): ?>
+                  <option value="<?php echo $rowCategory['id'] ?>"><?php echo $rowCategory['name'] ?></option>
                 <?php endforeach ?>
               </select>
             </div>
@@ -100,32 +104,29 @@ $rowCategories = mysqli_fetch_all($queryCategories, MYSQLI_ASSOC);
                 value="<?php echo ($id) ? $rowEdit['title'] : '' ?>" required>
             </div>
             <div class="mb-3">
-              <label for="penulis" class="form-label">Penulis</label>
-              <input type="text" class="form-control" id="penulis" name="penulis" placeholder="Penulis"
-                value="<?php echo ($id) ? $rowEdit['penulis'] : '' ?>" required>
+              <label for="" class="form-label">Tags</label>
+              <input name="tags" class="form-control" type="text" id="tags" value="<?php if ($id) {
+                                                                                      $tagsArray = json_decode($rowEdit['tags'], true);
+                                                                                      $tagValues = [];
+                                                                                      foreach ($tagsArray as $tag) {
+                                                                                        $tagValues[] = htmlspecialchars($tag['value']);
+                                                                                      }
+                                                                                      echo implode(',', $tagValues);
+                                                                                    } else {
+                                                                                      echo '';
+                                                                                    }
+                                                                                    ?>" required>
             </div>
-            <div class="mb-3">
-              <label for="tags" class="form-label">Tags</label>
-              <input type="text" class="form-control" id="tags" name="tags" placeholder="Tags"
-                value="<?php echo ($id) ? $rowEdit['tags'] : '' ?>" required>
-            </div>
-            <div class="mb-3">
+            <div class=" mb-3">
               <label for="content" class="form-label">Content</label>
               <textarea type="text" class="form-control" id="summernote" name="content"
                 placeholder="Masukkan Content Anda"><?php echo ($id) ? $rowEdit['content'] : '' ?></textarea>
               <!-- <small>- Isi Content jika ingin mengubah content</small> -->
             </div>
-            <div class="mb-3">
-              <label for="image" class="form-label">Gambar</label>
-              <br>
-              <small class="text-danger">- Isi Image jika ingin mengubah image</small>
-              <br>
-              <small class="text-danger">- Gambar harus landscape dan berukuran 1920 x 1088</small>
-              <br>
-              <small class="text-danger">- Format yang diperbolehkan: PNG, JPG, JPEG, WEBP</small>
-              <input type="file" class="form-control mt-3 mb-3" id="image" name="image"
-                placeholder="Masukkan Image Anda">
-              <img class="mt-2" src="uploads/<?php echo isset($rowEdit['image']) ? $rowEdit['image'] : '' ?>" alt=""
+            <div class=" mb-3">
+              <label for="image" class="form-label">Image</label>
+              <input type="file" class="form-control" id="image" name="image" placeholder="Masukkan Image Anda">
+              <img class="mt-2" src="upload/<?php echo isset($rowEdit['image']) ? $rowEdit['image'] : '' ?>" alt=""
                 width="100">
             </div>
 
@@ -145,7 +146,8 @@ $rowCategories = mysqli_fetch_all($queryCategories, MYSQLI_ASSOC);
               <select name="is_active" class="form-select" id="inputGroupSelect01">
                 <option <?php echo ($id) ? $rowEdit['is_active'] == 1 ? 'selected' : '' : '' ?> value="1">Publish
                 </option>
-                <option <?php echo ($id) ? $rowEdit['is_active'] == 0 ? 'selected' : '' : '' ?> value="0">Draft</option>
+                <option <?php echo ($id) ? $rowEdit['is_active'] == 0 ? 'selected' : '' : '' ?> value="0">Draft
+                </option>
               </select>
             </div>
             <div class="mb-3">

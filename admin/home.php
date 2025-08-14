@@ -2,7 +2,7 @@
 session_start();
 ob_start();
 include 'koneksi.php';
-if(empty($_SESSION['ID_USER'])) {
+if (empty($_SESSION['ID_USER'])) {
   header("location:index.php?accsess=failed");
 }
 ?>
@@ -17,7 +17,7 @@ if(empty($_SESSION['ID_USER'])) {
   <meta content="" name="description">
   <meta content="" name="keywords">
 
-  <?php include 'inc/css.php'?>
+  <?php include 'inc/css.php' ?>
 
   <!--=======================================================
   * Template Name: NiceAdmin 
@@ -31,40 +31,60 @@ if(empty($_SESSION['ID_USER'])) {
   </script>
   <link href="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/summernote@0.9.0/dist/summernote-lite.min.js"></script>
+  <link rel="stylesheet" href="../assets/js/tagify/tagify.css">
 </head>
 
 <body>
 
   <!-- ======= Header ======= -->
-  <?php include 'inc/header.php'?>
+  <?php include 'inc/header.php' ?>
 
   <!-- ======= Sidebar ======= -->
-  <?php include 'inc/sidebar.php'?>
+  <?php include 'inc/sidebar.php' ?>
 
   <main id="main" class="main">
     <?php
-      if (isset($_GET['page'])) {
-        if (file_exists('content/' .$_GET['page'] . '.php')) {
-          include 'content/' . $_GET['page'] . '.php';
-          } else {
-            include 'content/notfound.php';
-        }
+    if (isset($_GET['page'])) {
+      if (file_exists('content/' . $_GET['page'] . '.php')) {
+        include 'content/' . $_GET['page'] . '.php';
       } else {
-        include 'content/dashboard.php';
+        include 'content/notfound.php';
       }
-      ?>
+    } else {
+      include 'content/dashboard.php';
+    }
+    ?>
 
   </main><!-- End #main -->
 
   <!-- ======= Footer ======= -->
-  <?php include 'inc/footer.php'?>
+  <?php include 'inc/footer.php' ?>
 
   <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
       class="bi bi-arrow-up-short"></i></a>
 
-  <?php include 'inc/js.php'?>
+  <?php include 'inc/js.php' ?>
+
+  <script src="../assets/js/tagify/tagify.js"></script>
   <script>
-  $('#summernote').summernote();
+  var input = document.querySelector('#tags');
+  new Tagify(input)
+  </script>
+  <script>
+  $('#summernote').summernote({
+    placeholder: 'Hello stand alone ui',
+    tabsize: 2,
+    height: 120,
+    toolbar: [
+      ['style', ['style']],
+      ['font', ['bold', 'underline', 'clear']],
+      ['color', ['color']],
+      ['para', ['ul', 'ol', 'paragraph']],
+      ['table', ['table']],
+      ['insert', ['link', 'picture', 'video']],
+      ['view', ['fullscreen', 'codeview', 'help']]
+    ]
+  });
   </script>
 </body>
 

@@ -27,7 +27,7 @@ function changeIsActive($isActive)
 
       <div class="card">
         <div class="card-body">
-          <h5 class="card-title">Cliets</h5>
+          <h5 class="card-title">Data Blog</h5>
           <div class="mb-3" align="right">
             <a href="?page=tambah-blog" class="btn btn-primary">Tambah</a>
           </div>
@@ -35,32 +35,35 @@ function changeIsActive($isActive)
             <thread>
               <tr>
                 <th>No</th>
-                <th>Kategori</th>
-                <th>Title</th>
-                <th>Penulis</th>
                 <th>Image</th>
+                <th>Title</th>
+                <th>Content</th>
+                <th>Category</th>
+                <th>Tags</th>
                 <th>Status</th>
+                <th>Action</th>
               </tr>
             </thread>
             <tbody>
               <?php foreach ($rows as $key => $row): ?>
-              <tr>
-                <td><?php echo $key += 1  ?></td>
-                <td><img width="100" src="upload/<?php echo $row['image'] ?>" alt="">
-                </td>
-                <td><?php echo $row['title'] ?></td>
-                <td><?php echo $row['name'] ?></td>
-                <td><?php echo changeIsActive ($row['is_active']) ?></td>
-                <td>
-                  <a href=" ?page=tambah-blog&edit=<?php echo $row['id'] ?>" class="btn btn-sm btn-success" ?>
-                    Edit
-                  </a>
-                  <a onclick="return confirm('apakah anda yakin menghapus data ini')"
-                    href="?page=tambah-blog&delete=<?php echo $row['id'] ?>" class="btn btn-sm btn-danger">
-                    <i class="bi bi-eye"></i> Delete
-                  </a>
-                </td>
-              </tr>
+                <tr>
+                  <td><?php echo $key += 1  ?></td>
+                  <td><img width="100" src="upload/<?php echo $row['image'] ?>" alt="">
+                  </td>
+                  <td><?php echo $row['title'] ?></td>
+                  <td><?php echo $row['content'] ?></td>
+                  <td><?php echo $row['name'] ?></td>
+                  <td><?php echo $row['tags'] ?></td>
+                  <td><?php echo changeIsActive($row['is_active']) ?></td>
+                  <td>
+                    <a href=" ?page=tambah-blog&edit=<?php echo $row['id'] ?>" class="btn btn-sm btn-success" ?>
+                      Edit
+                    </a>
+                    <a onclick="return confirm('apakah anda yakin menghapus data ini')"
+                      href="?page=tambah-blog&delete=<?php echo $row['id'] ?>" class="btn btn-sm btn-danger"> Delete
+                    </a>
+                  </td>
+                </tr>
               <?php endforeach ?>
             </tbody>
           </table>
