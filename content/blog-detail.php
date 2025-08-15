@@ -60,14 +60,18 @@ $rowRecentBlogs = mysqli_fetch_all($recentBlogs, MYSQLI_ASSOC);
             <div class="meta-bottom">
               <i class="bi bi-folder"></i>
               <ul class="cats">
-                <li><a href="#"><?php echo $rowBlogDetail['name'] ?></a></li>
+                <li><a href="#"><?php echo $rowBlogDetail['category_name'] ?></a></li>
               </ul>
-
+              <?php $tags = json_decode($rowBlogDetail['tags'], true);
+                print_r($tags);
+                die;
+                ?>
               <i class="bi bi-tags"></i>
               <ul class="tags">
-                <li><a href="#">Creative</a></li>
-                <li><a href="#">Tips</a></li>
-                <li><a href="#">Marketing</a></li>
+                <?php foreach ($tags as $tag): ?>
+                <li><a href="#">
+                    <?php echo $tag['value']?></a></li>
+                <?php endforeach ?>
               </ul>
             </div><!-- End meta bottom -->
 

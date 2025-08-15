@@ -2,33 +2,32 @@
 $id = isset($_GET['edit']) ? $_GET['edit'] : '';
 if (isset($_GET['edit'])) {
   $id = $_GET['edit'];
-  $query = mysqli_query($koneksi, "SELECT * FROM blogs WHERE id = '$id'");
+  $query = mysqli_query($koneksi, "SELECT * FROM portofolios WHERE id = '$id'");
   $rowEdit = mysqli_fetch_assoc($query);
-  $title = "Edit Blog";
+  $title = "Edit Portofolio";
 } else {
-  $title = "Tambah Blog";
+  $title = "Tambah Portofolio";
 }
 
 if (isset($_GET['delete'])) {
   $id = $_GET['delete'];
-  $queryGambar = mysqli_query($koneksi, "SELECT id, image FROM blogs WHERE id='$id'");
+  $queryGambar = mysqli_query($koneksi, "SELECT id, image FROM portofolios WHERE id='$id'");
   $rowGambar = mysqli_fetch_assoc($queryGambar);
   $image_name = $rowGambar['image'];
   unlink("upload/" . $image_name);
-  $delete = mysqli_query($koneksi, "DELETE FROM blogs WHERE id = '$id'");
-  header("location:?page=blog&hapus=berhasil");
+  $delete = mysqli_query($koneksi, "DELETE FROM portofolios WHERE id = '$id'");
+  header("location:?page=portofolio&hapus=berhasil");
 }
 
 if (isset($_POST['simpan'])) {
   $id_category = ['id_category'];
   $title = $_POST['title'];
   $content = $_POST['content'];
-  $penulis = $_SESSION['NAME'];
+  $client_name = $_POST['client_name'];
+  $project_date = $_POST['project_date'];
+  $project_url = $_POST['project_url'];
   $is_active = $_POST['is_active'];
   $id_category = $_POST['id_category'];
-  $tags = $_POST['tags'];
-
-
 
   // jika gambar terupload
   if (!empty($_FILES['image']['name'])) {
@@ -52,26 +51,27 @@ if (isset($_POST['simpan'])) {
       echo "extensi file tidak ditemukan";
       die;
     }
-    $update = "UPDATE blogs SET title = '$title', tags = '$tags', content = '$content', is_active = '$is_active', image_name='$image_name', penulis = '$penulis', id_category = '$id_category' WHERE id = '$id'";
+
+    $update = "UPDATE portofolios SET title = '$title', content = '$content', is_active = '$is_active', image_name='$image_name', client_name = '$client_name', project_date = '$project_date', project_url = '$project_url', id_category = '$id_category' WHERE id = '$id'";
   } else {
-    $update = "UPDATE blogs SET title = '$title', tags = '$tags', content = '$content', is_active = '$is_active', penulis = '$penulis', id_category = '$id_category' WHERE id = '$id'";
+    $update = "UPDATE portofolios SET title = '$title', content = '$content', is_active = '$is_active', client_name = '$client_name', project_date = '$project_date', project_url = '$project_url', id_category = '$id_category' WHERE id = '$id'";
   }
 
   if ($id) {
     // ini query update
     $update = mysqli_query($koneksi, $update);
     if ($update) {
-      header("location:?page=blog&ubah=berhasil");
+      header("location:?page=portofolio&ubah=berhasil");
     }
   } else {
-    $insert = mysqli_query($koneksi, "INSERT INTO blogs (id_category, title, tags, content, image, is_active, penulis) VALUES ('$id_category', '$title', '$tags', '$content','$image_name', '$is_active', '$penulis')");
+    $insert = mysqli_query($koneksi, "INSERT INTO portofolios (id_category, title, content, image, is_active, client_name, project_date, project_url) VALUES ('$id_category', '$title', '$content', '$image_name', '$is_active', '$client_name', '$project_date', '$project_url')");
     if ($insert) {
-      header("location:?page=blog&tambah=berhasil");
+      header("location:?page=portofolio&tambah=berhasil");
     }
   }
 }
 
-$queryCategories = mysqli_query($koneksi, "SELECT * FROM categories WHERE type='blog' ORDER BY id DESC");
+$queryCategories = mysqli_query($koneksi, "SELECT * FROM categories WHERE type='portofolio' ORDER BY id DESC");
 $rowCategories = mysqli_fetch_all($queryCategories, MYSQLI_ASSOC);
 
 
@@ -104,18 +104,19 @@ $rowCategories = mysqli_fetch_all($queryCategories, MYSQLI_ASSOC);
                 value="<?php echo ($id) ? $rowEdit['title'] : '' ?>" required>
             </div>
             <div class="mb-3">
-              <label for="" class="form-label">Tags</label>
-              <input name="tags" class="form-control" type="text" id="tags" value="<?php if ($id) {
-                                                                                      $tagsArray = json_decode($rowEdit['tags'], true);
-                                                                                      $tagValues = [];
-                                                                                      foreach ($tagsArray as $tag) {
-                                                                                        $tagValues[] = htmlspecialchars($tag['value']);
-                                                                                      }
-                                                                                      echo implode(',', $tagValues);
-                                                                                    } else {
-                                                                                      echo '';
-                                                                                    }
-                                                                                    ?>" required>
+              <label for="" class="form-label">Nama Client</label>
+              <input name="client_name" type=" text" class="form-control"
+                value="<?php echo ($id) ? $rowEdit['client_name'] : '' ?>" required>
+            </div>
+            <div class="mb-3">
+              <label for="" class="form-label">Tanggal Projek</label>
+              <input name="project_date" type="date" class=" form-control"
+                value="<?php echo ($id) ? $rowEdit['project_date'] : '' ?>" required>
+            </div>
+            <div class="mb-3">
+              <label for="" class="form-label">Url Projek</label>
+              <input name="project_url" type="url" class="form-control"
+                value="<?php echo ($id) ? $rowEdit['project_url'] : '' ?>" required>
             </div>
             <div class=" mb-3">
               <label for="content" class="form-label">Content</label>

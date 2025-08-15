@@ -3,14 +3,14 @@
 
       <div id="hero-carousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="5000">
         <?php foreach ($rowSliders as $key => $rowSlider): ?>
-          <div class="carousel-item <?php echo $key === 0 ? 'active' : '' ?>">
-            <img src="admin/upload/<?php echo $rowSlider['image'] ?>" alt="">
-            <div class="container">
-              <h2><?php echo $rowSlider['title']  ?></h2>
-              <p><?php echo $rowSlider['description'] ?></p>
-              <a href="about.html" class="btn-get-started">Read More</a>
-            </div>
-          </div><!-- End Carousel Item -->
+        <div class="carousel-item <?php echo $key === 0 ? 'active' : '' ?>">
+          <img src="admin/upload/<?php echo $rowSlider['image'] ?>" alt="">
+          <div class="container">
+            <h2><?php echo $rowSlider['title']  ?></h2>
+            <p><?php echo $rowSlider['description'] ?></p>
+            <a href="about.html" class="btn-get-started">Read More</a>
+          </div>
+        </div><!-- End Carousel Item -->
         <?php endforeach ?>
 
 
@@ -334,19 +334,15 @@
       </div><!-- End Section Title -->
 
       <div class="container" data-aos="fade-up" data-aos-delay="100">
+        <div class="row g-0 clients-wrap">
+          <?php foreach ($rowClients as $key => $rowClient): ?>
 
-        <?php foreach ($rowClients as $key => $rowClient): ?>
+          <div class="col-xl-3 col-md-4 client-logo">
+            <img src="admin/upload/<?php echo $rowClient['image'] ?>" class="img-fluid" alt="">
+          </div><!-- End Client Item -->
 
-          <div class="row g-0 clients-wrap">
-
-            <div class="col-xl-3 col-md-4 client-logo">
-              <img src="admin/upload/<?php echo $rowClient['image'] ?>" class="img-fluid" alt="">
-            </div><!-- End Client Item -->
-
-
-          </div>
-
-        <?php endforeach ?>
+          <?php endforeach ?>
+        </div>
 
       </div>
 
